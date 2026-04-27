@@ -9,7 +9,7 @@
 // IMPORTANT: bump this version any time you change app.js, styles.css,
 // activities.js, or index.html — that's how clients know to fetch the
 // new files instead of serving stale ones from cache.
-const CACHE_VERSION = 'cle-trip-v4';
+const CACHE_VERSION = 'cle-trip-v5';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 const APP_SHELL = [

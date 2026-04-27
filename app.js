@@ -431,9 +431,66 @@
       <p>${escapeHtml(a.description)}</p>
       <p class="modal-info">${escapeHtml(a.info || '')}</p>
       ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
+      ${renderEventsSection(a)}
     `;
     modalActions.innerHTML = renderActionTray(a);
     modal.classList.remove('hidden');
+  }
+
+  /**
+   * renderEventsSection(a)
+   * Shows scheduled events during the trip (June 4-9, 2026) in a clean card.
+   * If `eventsNote` is set instead, shows that as a simple note.
+   */
+  function renderEventsSection(a) {
+    const events = (a.events || []).filter(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      return d >= TRIP_START && d <= TRIP_END;
+    });
+
+    if (events.length === 0 && !a.eventsNote) return '';
+
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    let html = '<div class="events-section"><div class="events-header">📅 During your trip</div>';
+
+    if (events.length > 0) {
+      events.sort((a, b) => a.date.localeCompare(b.date));
+      html += '<div class="events-list">';
+      events.forEach(e => {
+        const d = new Date(e.date + 'T00:00:00');
+        const dayLabel = `${dayNames[d.getDay()]} ${monthNames[d.getMonth()]} ${d.getDate()}`;
+        const timeLabel = formatEventTime(e.time);
+        html += `
+          <div class="event-row">
+            <div class="event-when">
+              <div class="event-day">${dayLabel}</div>
+              <div class="event-time">${timeLabel}</div>
+            </div>
+            <div class="event-name">${escapeHtml(e.name)}</div>
+          </div>`;
+      });
+      html += '</div>';
+    }
+
+    if (a.eventsNote) {
+      html += `<div class="events-note">${escapeHtml(a.eventsNote)}</div>`;
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function formatEventTime(t) {
+    if (!t) return '';
+    // Accept "HH:MM" 24h, return "h:mm AM/PM"
+    const parts = t.split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || '00';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${m} ${ampm}`;
   }
 
   /**
@@ -533,14 +590,27 @@
   }
 
   // Is `a` open right now?  Open by default if no hours are specified.
+  // Schema:
+  //   hours: { open, close, closedDays: [int], byDay: { dayIdx: [open, close] } }
+  // byDay overrides take precedence for that specific day-of-week.
   function isOpenNow(a, now) {
     if (!a.hours) return true;
     now = now || new Date();
     const day = now.getDay();
-    if (a.hours.closedDays && a.hours.closedDays.includes(day)) return false;
+    const h = a.hours;
+    if (h.closedDays && h.closedDays.includes(day)) return false;
+
+    let open, close;
+    if (h.byDay && h.byDay[day]) {
+      [open, close] = h.byDay[day];
+    } else if (h.open !== undefined && h.close !== undefined) {
+      open = h.open;
+      close = h.close;
+    } else {
+      return true;
+    }
+
     const nowHr = now.getHours() + now.getMinutes() / 60;
-    const open = a.hours.open;
-    const close = a.hours.close;
     if (close > 24) {
       // Open until next day
       return nowHr >= open || nowHr < (close - 24);

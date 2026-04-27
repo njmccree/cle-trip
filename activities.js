@@ -25,7 +25,7 @@ const ACTIVITIES = [
   { id: 'west-side-market', title: 'West Side Market', category: 'food', emoji: '🥩',
     lat: 41.4843, lng: -81.7038,
     phone: '+12166643387', website: 'https://westsidemarket.org',
-    hours: { open: 7, close: 16, closedDays: [0,2,4] },
+    hours: { open: 7, close: 16, closedDays: [0,2,4], byDay: { 5: [7, 18], 6: [7, 18] } },
     daypart: ['morning','lunch'],
     description: 'Cleveland\'s 100+ year-old public market — meats, pierogi, Hungarian crepes, and more under one beautiful vaulted ceiling. Great group breakfast or lunch stop.',
     info: '1979 W 25th St • Mon/Wed 7a-4p, Fri/Sat 7a-6p • Closed Tue/Thu/Sun • Iconic',
@@ -43,10 +43,10 @@ const ACTIVITIES = [
   { id: 'mabels-bbq', title: "Mabel's BBQ", category: 'food', emoji: '🍖',
     lat: 41.4988, lng: -81.6877,
     phone: '+12166854442', website: 'https://mabelsbbq.com',
-    hours: { open: 17, close: 22 },
+    hours: { open: 17, close: 22, closedDays: [0, 1], byDay: { 5: [17, 23], 6: [17, 23] } },
     daypart: ['evening'],
     description: 'Michael Symon\'s Cleveland-style BBQ — Eastern European spices, mustard sauce, and beer. Built for sharing, made for a group.',
-    info: '2050 E 4th St (East 4th) • Dinner nightly • Reservations recommended for groups',
+    info: '2050 E 4th St (East 4th) • Tue-Thu 5-10pm, Fri-Sat 5-11pm • Closed Sun/Mon • Reservations recommended',
     tags: ['dinner', 'group-friendly', 'celebrity-chef'] },
 
   { id: 'lola-bistro', title: 'Lola Bistro', category: 'food', emoji: '🍽️',
@@ -133,10 +133,10 @@ const ACTIVITIES = [
   { id: 'lucky-cafe', title: "Lucky's Café", category: 'food', emoji: '🍳',
     lat: 41.4790, lng: -81.6900,
     phone: '+12164412020', website: 'https://luckyscafe.com',
-    hours: { open: 7, close: 15, closedDays: [1] },
+    hours: { open: 8, close: 15, closedDays: [1, 2], byDay: { 0: [9, 14] } },  // Sun shorter
     daypart: ['morning','lunch'],
-    description: 'Tremont brunch institution — shrimp & grits, lemon ricotta pancakes, and a line out the door on weekends. Worth the wait.',
-    info: '777 Starkweather Ave (Tremont) • Brunch daily',
+    description: 'Tremont brunch institution — shrimp & grits, lemon ricotta pancakes, and a line out the door on weekends. Worth the wait — get there before 10 on weekends.',
+    info: '777 Starkweather Ave (Tremont) • Wed-Sat 8a-3p, Sun 9a-2p • Closed Mon/Tue',
     tags: ['brunch', 'iconic'] },
 
   { id: 'blue-door', title: 'The Blue Door Café', category: 'food', emoji: '🥞',
@@ -151,19 +151,19 @@ const ACTIVITIES = [
   { id: 'pier-w', title: 'Pier W', category: 'food', emoji: '🐟',
     lat: 41.4938, lng: -81.7833,
     phone: '+12162217777', website: 'https://www.pierw.com',
-    hours: { open: 17, close: 22 },
+    hours: { open: 17, close: 21, byDay: { 5: [17, 22], 6: [17, 22], 0: [10, 14] } }, // Sun is brunch only
     daypart: ['evening'],
-    description: 'Suspended over Lake Erie with skyline views — old-school seafood spot for a fancy night out. Sunset reservations are gold.',
-    info: '12700 Lake Ave (Lakewood) • Dinner • Reservations a must',
+    description: 'Suspended over Lake Erie with skyline views — old-school seafood spot for a fancy night out. Sunset reservations are gold. Sunday is brunch-only.',
+    info: '12700 Lake Ave (Lakewood) • Sun-Thu dinner 5-9, Fri-Sat 5-10, Sun brunch 10-2 • Reservations',
     tags: ['date-night', 'special-occasion', 'view'] },
 
   { id: 'hofbrauhaus', title: 'Hofbräuhaus Cleveland', category: 'food', emoji: '🥨',
     lat: 41.5018, lng: -81.6678,
     phone: '+12162746171', website: 'https://www.hofbrauhauscleveland.com',
-    hours: { open: 11, close: 24 },
+    hours: { open: 11, close: 22, byDay: { 5: [11, 25], 6: [11, 25], 0: [11, 21] } },
     daypart: ['lunch','evening','late'],
     description: 'Munich-style beer hall — liter steins, pretzels the size of your face, communal tables, oompah band. Built for groups.',
-    info: '1550 Chester Ave • Daily • Groups welcome • Bavarian energy',
+    info: '1550 Chester Ave • Mon-Thu 11a-10p, Fri-Sat 11a-1a, Sun 11a-9p • Bavarian energy',
     tags: ['dinner', 'group-friendly', 'rowdy'] },
 
   { id: 'banter', title: 'Banter Beer & Wine', category: 'food', emoji: '🍟',
@@ -187,10 +187,10 @@ const ACTIVITIES = [
   { id: 'marble-room', title: 'Marble Room', category: 'food', emoji: '🥩',
     lat: 41.5009, lng: -81.6878,
     phone: '+12162811919', website: 'https://www.marbleroomcleveland.com',
-    hours: { open: 17, close: 22 },
+    hours: { open: 16, close: 22, closedDays: [0], byDay: { 5: [16, 23], 6: [16, 23] } },
     daypart: ['evening'],
     description: 'Steaks and sushi in another stunning bank conversion. Soaring ceilings, a literal Greek frieze, very "we got dressed up" night.',
-    info: '623 Euclid Ave (Downtown) • Dinner • Reservations',
+    info: '623 Euclid Ave • Mon-Thu 4-10pm, Fri-Sat 4-11pm • Closed Sun • Reservations',
     tags: ['date-night', 'special-occasion', 'photogenic'] },
 
   { id: 'felice', title: 'Felice Urban Café', category: 'food', emoji: '🍝',
@@ -412,6 +412,7 @@ const ACTIVITIES = [
     daypart: ['evening','late'],
     description: 'Indie/alt music venue with two rooms — check the calendar, you might luck into a national act in a 500-person room.',
     info: '15711 Waterloo Rd • Show nights • Tickets ahead',
+    eventsNote: 'No major shows scheduled June 4-9 (last show is June 2, next is June 10). Late additions sometimes appear — check the website.',
     tags: ['music', 'late'] },
 
   { id: 'grog-shop', title: 'Grog Shop', category: 'bars', emoji: '🎧',
@@ -421,6 +422,7 @@ const ACTIVITIES = [
     daypart: ['evening','late'],
     description: 'Coventry indie/punk venue — small, sweaty, legendary. Where Kid Cudi cut his teeth.',
     info: '2785 Euclid Heights Blvd • Show nights',
+    eventsNote: 'No shows scheduled June 4-9 (last show June 2, next June 10). Walk-up bar still open.',
     tags: ['music', 'late'] },
 
   { id: 'bar-hop-east-4th', title: 'East 4th St Bar Hop', category: 'bars', emoji: '🍹',
@@ -513,20 +515,28 @@ const ACTIVITIES = [
     info: '601 Erieside Ave • Seasonal • Combo with GLSC',
     tags: ['photogenic', 'history'] },
 
-  { id: 'severance-hall', title: 'Severance Hall (Cleveland Orchestra)', category: 'museums', emoji: '🎻',
+  { id: 'severance-hall', title: 'Severance Hall / Mandel Concert Hall', category: 'museums', emoji: '🎻',
     lat: 41.5076, lng: -81.6062,
     phone: '+12162311111', website: 'https://www.clevelandorchestra.com',
     daypart: ['evening'],
-    description: 'One of the world\'s top 5 orchestras in a stunning Art Deco hall. Even if classical isn\'t your thing, the room itself is a memory.',
-    info: '11001 Euclid Ave • Check season schedule • Dress up',
+    description: 'Stunning Art Deco hall, home of the Cleveland Orchestra. Even if classical isn\'t your thing, the room itself is a memory. Two big shows during your trip.',
+    info: '11001 Euclid Ave • Tickets via clevelandorchestra.com • Dress up',
+    events: [
+      { date: '2026-06-05', time: '19:00', name: 'Cleveland Orchestra — Matilda in Concert' },
+      { date: '2026-06-06', time: '19:30', name: 'Cleveland Pops Orchestra — 250th Celebration' }
+    ],
     tags: ['classy', 'date-night', 'iconic'] },
 
   { id: 'playhouse-square', title: 'Playhouse Square', category: 'museums', emoji: '🎭',
     lat: 41.5008, lng: -81.6817,
     phone: '+12164718600', website: 'https://www.playhousesquare.org',
     daypart: ['evening'],
-    description: 'Largest performing arts center outside NYC. Touring Broadway shows, comedy, concerts. Stand under the giant outdoor chandelier.',
-    info: '1501 Euclid Ave • Check schedule • Photo under the chandelier',
+    description: 'Largest performing arts center outside NYC. Touring Broadway shows, comedy, concerts. Stand under the giant outdoor chandelier — perfect group photo.',
+    info: '1501 Euclid Ave • Photo under the chandelier even if you don\'t see a show',
+    events: [
+      { date: '2026-06-09', time: '19:30', name: 'The Great Gatsby (Broadway) opens at Connor Palace — runs through June 28' }
+    ],
+    eventsNote: 'Cleveland Play House also has "Freak the Mighty" running through June 21 at the Allen Theatre.',
     tags: ['photogenic', 'theater', 'date-night'] },
 
   { id: 'cinematheque', title: 'Cleveland Cinematheque', category: 'museums', emoji: '🎬',
@@ -563,6 +573,19 @@ const ACTIVITIES = [
     info: '1300 W 78th St • Best on Third Fridays • Free',
     tags: ['free', 'art', 'date-night'] },
 
+  // Pride in the CLE — confirmed Saturday June 6, 2026
+  { id: 'pride-in-cle', title: 'Pride in the CLE', category: 'museums', emoji: '🌈',
+    lat: 41.5060, lng: -81.6921,
+    website: 'https://lgbtcleveland.org/pride/',
+    daypart: ['morning','lunch','afternoon'],
+    description: 'Cleveland\'s biggest pride event. The 2026 edition is framed as a unified march (not just a parade) — staging at Public Square at 10 AM, then a festival at Mall B & C with live performances, food, and vendor booths. Free.',
+    info: 'Mall B & C (downtown) • Sat Jun 6 • March stages 10 AM, festival 11 AM-6 PM • Free',
+    events: [
+      { date: '2026-06-06', time: '10:00', name: 'March staging at Public Square (steps off downtown)' },
+      { date: '2026-06-06', time: '11:00', name: 'Pride Festival at Mall B & C — live performances, food, vendors (until 6 PM)' }
+    ],
+    tags: ['free', 'group-friendly', 'iconic', 'memorable', 'walking', 'must-do'] },
+
   { id: 'cleveland-public-library', title: 'Cleveland Public Library Main', category: 'museums', emoji: '📚',
     lat: 41.5006, lng: -81.6914,
     phone: '+12166232800', website: 'https://cpl.org',
@@ -577,33 +600,23 @@ const ACTIVITIES = [
     lat: 41.4962, lng: -81.6852,
     phone: '+12164208887', website: 'https://www.mlb.com/guardians',
     daypart: ['evening'],
-    description: 'Catch a game at Progressive Field — corner-stand stromboli, rooftop bars, fireworks Fridays. Classic American summer night.',
-    info: '2401 Ontario St • Apr-Sep • Tickets cheap on weekdays',
-    tags: ['gameday', 'group-friendly', 'iconic', 'summer'] },
+    description: 'Catch a game at Progressive Field — corner-stand stromboli, rooftop bars, fireworks Fridays. Two home games against the Yankees during your trip — classic American summer night.',
+    info: '2401 Ontario St • Two home games during your trip vs. NY Yankees',
+    events: [
+      { date: '2026-06-08', time: '18:40', name: 'vs. NY Yankees (Pride Logo Cap giveaway)' },
+      { date: '2026-06-09', time: '18:40', name: 'vs. NY Yankees (Pickleball Paddle giveaway)' }
+    ],
+    tags: ['gameday', 'group-friendly', 'iconic', 'summer', 'must-do'] },
 
-  { id: 'cavs-game', title: 'Cleveland Cavaliers Game', category: 'sports', emoji: '🏀',
-    lat: 41.4965, lng: -81.6881,
-    phone: '+12164202200', website: 'https://www.nba.com/cavaliers',
-    daypart: ['evening'],
-    description: 'Rocket Mortgage FieldHouse — loud, fun, scoreboard-driven. The Q is right next to East 4th, so dinner-then-game is the move.',
-    info: '1 Center Ct • Oct-Apr • Tickets vary widely',
-    tags: ['gameday', 'group-friendly'] },
-
-  { id: 'browns-game', title: 'Cleveland Browns Game', category: 'sports', emoji: '🏈',
+  // Brazil vs. Egypt friendly at Huntington Bank Field — confirmed for the trip
+  { id: 'brazil-vs-egypt-soccer', title: 'Brazil vs. Egypt (Soccer)', category: 'sports', emoji: '⚽',
     lat: 41.5061, lng: -81.6995,
-    website: 'https://www.clevelandbrowns.com',
-    daypart: ['afternoon'],
-    description: 'Lakefront stadium, Dawg Pound, Muni Lot tailgate culture. Get there 4 hours before kickoff with charcoal and questionable life choices.',
-    info: 'Huntington Bank Field • Sep-Jan • Tailgate is the event',
-    tags: ['gameday', 'tailgate', 'rowdy', 'iconic'] },
-
-  { id: 'monsters-hockey', title: 'Cleveland Monsters Hockey', category: 'sports', emoji: '🏒',
-    lat: 41.4965, lng: -81.6881,
-    website: 'https://www.clevelandmonsters.com',
+    website: 'https://huntingtonbankfield.com/events/brazil-egypt/',
     daypart: ['evening'],
-    description: 'AHL hockey at the Q — way cheaper than NHL, way more rowdy, fights still legal-ish. Affordable group night out.',
-    info: '1 Center Ct • Oct-Apr • Tix often <$20',
-    tags: ['gameday', 'cheap', 'group-friendly'] },
+    description: 'Two of international soccer\'s top national teams play a friendly at Huntington Bank Field. Brazil (5x World Cup winners) vs. Egypt (7x AFCON champs). Massive crowd, massive vibes — the only Cleveland sports event this big in June.',
+    info: 'Huntington Bank Field • Sat Jun 6 • Kickoff 6 PM • Tickets via Ticketmaster/AXS',
+    events: [{ date: '2026-06-06', time: '18:00', name: 'Brazil vs. Egypt (Road to 26 series)' }],
+    tags: ['gameday', 'group-friendly', 'iconic', 'memorable', 'must-do'] },
 
   { id: 'edgewater-park', title: 'Edgewater Park & Beach', category: 'sports', emoji: '🏖️',
     lat: 41.4882, lng: -81.7440,
@@ -672,15 +685,6 @@ const ACTIVITIES = [
     info: 'Downtown • Free • Year-round',
     tags: ['free', 'walking', 'downtown'] },
 
-  { id: 'edgewater-live', title: 'Edgewater Live (Thursdays)', category: 'sports', emoji: '🎶',
-    lat: 41.4882, lng: -81.7440,
-    website: 'https://www.clevelandmetroparks.com',
-    hours: { open: 17, close: 22, closedDays: [0,1,2,3,5,6] },
-    daypart: ['evening'],
-    description: 'Free concerts on the beach Thursday nights in summer — food trucks, sunsets, beer tent. Easiest "Cleveland is great" night.',
-    info: 'Edgewater Park • Thu nights, summer • Free',
-    tags: ['free', 'summer', 'lake', 'group-friendly', 'music'] },
-
   { id: 'flats-river-bike', title: 'Cuyahoga River Walk', category: 'sports', emoji: '🚶',
     lat: 41.5005, lng: -81.7028,
     daypart: ['morning','afternoon','evening'],
@@ -726,10 +730,10 @@ const ACTIVITIES = [
   { id: 'cedar-point', title: 'Cedar Point', category: 'nearby', emoji: '🎢',
     lat: 41.4824, lng: -82.6830,
     phone: '+14196260830', website: 'https://www.cedarpoint.com',
-    hours: { open: 11, close: 22 },
+    hours: { open: 11, close: 22, byDay: { 6: [10, 23] } },  // Sat opens earlier, closes later
     daypart: ['morning','afternoon','evening'],
     description: '"Roller coaster capital of the world" — 17 coasters including Steel Vengeance, Millennium Force, Maverick. Allocate a full day, wear sunscreen, eat at the Famous Dave\'s.',
-    info: 'Sandusky • ~1 hr west • $80+ • Full day trip',
+    info: 'Sandusky • ~1 hr west • $80+ • Weekdays 11a-10p, Sat 10a-11p • Verify operating days at cedarpoint.com (some early-June Tuesdays vary)',
     tags: ['day-trip', 'group-friendly', 'iconic', 'memorable', 'summer'] },
 
   { id: 'kalahari', title: 'Kalahari Resort & Waterpark', category: 'nearby', emoji: '🌊',
@@ -814,10 +818,15 @@ const ACTIVITIES = [
   { id: 'cv-railroad', title: 'Cuyahoga Valley Scenic Railroad', category: 'nearby', emoji: '🚂',
     lat: 41.1940, lng: -81.6080,
     phone: '+18004683939', website: 'https://www.cvsr.org',
-    daypart: ['afternoon','evening'],
-    description: 'Vintage train through the national park — wine-tasting cars, beer cars, classic excursion. Way better with a buzz on the Bourbon Express.',
-    info: 'Multiple stations • $20-50 • Themed rides',
-    tags: ['day-trip', 'group-friendly', 'memorable'] },
+    daypart: ['morning','afternoon','evening'],
+    description: 'Vintage train through the national park. Three days of your trip overlap with the legendary Nickel Plate Road 765 steam locomotive — that\'s a once-a-year visit and you\'ve hit the window.',
+    info: 'Multiple stations • $20-50 typical, steam tickets pricier • Book ahead',
+    events: [
+      { date: '2026-06-05', time: '08:00', name: 'Nickel Plate Road #765 Steam — breakfast train' },
+      { date: '2026-06-06', time: '08:00', name: 'Nickel Plate Road #765 Steam — breakfast train' },
+      { date: '2026-06-07', time: '08:00', name: 'Nickel Plate Road #765 Steam — breakfast train' }
+    ],
+    tags: ['day-trip', 'group-friendly', 'memorable', 'must-do'] },
 
   { id: 'stan-hywet', title: 'Stan Hywet Hall (Akron)', category: 'nearby', emoji: '🏰',
     lat: 41.1170, lng: -81.5560,
@@ -879,14 +888,6 @@ const ACTIVITIES = [
     description: 'Easternmost lake beach in Ohio — wide sand, cliffs, fewer people. Combine with the Conneaut WWII reenactment in August (D-Day Ohio).',
     info: '480 Lake Rd, Conneaut • Free',
     tags: ['day-trip', 'lake', 'free', 'summer'] },
-
-  { id: 'd-day-ohio', title: 'D-Day Conneaut (August)', category: 'nearby', emoji: '🪖',
-    lat: 41.9700, lng: -80.5640,
-    website: 'https://ddayohio.us',
-    daypart: ['morning','afternoon'],
-    description: 'Largest WWII reenactment in the country — landings, encampments, period jazz dance. Wild, weird, unforgettable summer-only event.',
-    info: 'Conneaut Township Park • Mid-August only',
-    tags: ['day-trip', 'weird-fun', 'memorable', 'summer'] },
 
   { id: 'hocking-hills', title: 'Hocking Hills (long drive)', category: 'nearby', emoji: '🌲',
     lat: 39.4267, lng: -82.5346,
