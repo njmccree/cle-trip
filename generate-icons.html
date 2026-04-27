@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate App Icons</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; color: #0f172a; line-height: 1.5; }
+    h1 { font-size: 22px; }
+    button { font: inherit; padding: 12px 22px; background: #0f172a; color: white; border: 0; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #1e293b; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .preview { display: flex; gap: 16px; align-items: center; margin: 24px 0; flex-wrap: wrap; }
+    .preview > div { text-align: center; }
+    .preview img { display: block; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 6px; background: #eee; }
+    .preview small { color: #64748b; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+    .note { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 4px; margin: 18px 0; font-size: 14.5px; }
+    .err { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 4px; margin: 18px 0; font-size: 14.5px; }
+  </style>
+</head>
+<body>
+  <h1>🏙️ Cleveland Trip — Icon Generator</h1>
+
+  <p>This page converts the bundled SVG into the PNG sizes iOS Safari needs for "Add to Home Screen." Run it once.</p>
+
+  <div class="note">
+    <strong>How to use:</strong>
+    <ol>
+      <li>Click <strong>Generate &amp; Download</strong> below.</li>
+      <li>Your browser will download three PNG files: <code>icon-192.png</code>, <code>icon-512.png</code>, <code>apple-touch-icon.png</code>.</li>
+      <li>Move them from your Downloads folder into this project folder (next to <code>index.html</code>).</li>
+      <li>Commit and push. Done — you can delete this file afterwards.</li>
+    </ol>
+  </div>
+
+  <button id="go">Generate &amp; Download</button>
+
+  <div class="preview" id="preview"></div>
+
+  <!-- The icon SVG, inlined so this page works when opened directly via file:// (no fetch). -->
+  <script id="icon-svg" type="image/svg+xml">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#7c3aed"/>
+      <stop offset="55%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="190" r="58" fill="#fde68a" opacity="0.95"/>
+  <g fill="#0f172a">
+    <rect x="40"  y="290" width="38" height="120"/>
+    <rect x="84"  y="260" width="32" height="150"/>
+    <rect x="122" y="280" width="28" height="130"/>
+    <rect x="156" y="240" width="40" height="170"/>
+    <rect x="210" y="170" width="46" height="240"/>
+    <rect x="218" y="150" width="30" height="22"/>
+    <rect x="225" y="130" width="16" height="22"/>
+    <polygon points="233,108 224,130 242,130"/>
+    <rect x="278" y="140" width="40" height="270"/>
+    <polygon points="298,100 278,140 318,140"/>
+    <rect x="332" y="240" width="36" height="170"/>
+    <rect x="374" y="270" width="30" height="140"/>
+    <rect x="410" y="250" width="34" height="160"/>
+    <rect x="450" y="285" width="22" height="125"/>
+  </g>
+  <g fill="#fbbf24" opacity="0.9">
+    <rect x="217" y="200" width="4" height="4"/>
+    <rect x="225" y="200" width="4" height="4"/>
+    <rect x="233" y="200" width="4" height="4"/>
+    <rect x="241" y="200" width="4" height="4"/>
+    <rect x="217" y="220" width="4" height="4"/>
+    <rect x="233" y="220" width="4" height="4"/>
+    <rect x="241" y="220" width="4" height="4"/>
+    <rect x="217" y="260" width="4" height="4"/>
+    <rect x="225" y="260" width="4" height="4"/>
+    <rect x="241" y="260" width="4" height="4"/>
+    <rect x="284" y="180" width="4" height="4"/>
+    <rect x="292" y="180" width="4" height="4"/>
+    <rect x="300" y="180" width="4" height="4"/>
+    <rect x="308" y="180" width="4" height="4"/>
+    <rect x="284" y="210" width="4" height="4"/>
+    <rect x="300" y="210" width="4" height="4"/>
+    <rect x="308" y="210" width="4" height="4"/>
+    <rect x="284" y="250" width="4" height="4"/>
+    <rect x="292" y="250" width="4" height="4"/>
+    <rect x="308" y="250" width="4" height="4"/>
+  </g>
+  <path d="M 0 410 Q 64 395 128 410 T 256 410 T 384 410 T 512 410 L 512 470 Q 384 460 256 470 T 0 470 Z" fill="url(#lake)"/>
+  <path d="M 0 440 Q 64 425 128 440 T 256 440 T 384 440 T 512 440 L 512 512 L 0 512 Z" fill="#0c4a6e"/>
+  <path d="M 30 425 Q 60 420 90 425" stroke="#7dd3fc" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M 200 425 Q 230 420 260 425" stroke="#7dd3fc" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M 380 425 Q 410 420 440 425" stroke="#7dd3fc" stroke-width="2" fill="none" opacity="0.7"/>
+</svg>
+  </script>
+
+  <script>
+    const SIZES = [
+      { size: 192, name: 'icon-192.png' },
+      { size: 512, name: 'icon-512.png' },
+      { size: 180, name: 'apple-touch-icon.png' }
+    ];
+
+    function loadInlineSvgAsImage() {
+      const svgText = document.getElementById('icon-svg').textContent.trim();
+      const blob = new Blob([svgText], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      return new Promise((resolve, reject) => {
+        img.onload = () => resolve({ img, url });
+        img.onerror = (e) => reject(e);
+        img.src = url;
+      });
+    }
+
+    function svgToPng(img, size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, size, size);
+      return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    }
+
+    function downloadBlob(blob, filename) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function showError(msg) {
+      const e = document.createElement('div');
+      e.className = 'err';
+      e.innerHTML = `<strong>Error:</strong> ${msg}`;
+      document.body.appendChild(e);
+    }
+
+    document.getElementById('go').addEventListener('click', async () => {
+      const btn = document.getElementById('go');
+      btn.disabled = true;
+      btn.textContent = 'Generating…';
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+
+      try {
+        const { img } = await loadInlineSvgAsImage();
+        for (const { size, name } of SIZES) {
+          const blob = await svgToPng(img, size);
+          if (!blob) throw new Error(`canvas.toBlob returned null for ${name}`);
+          downloadBlob(blob, name);
+
+          const wrap = document.createElement('div');
+          const i = document.createElement('img');
+          i.src = URL.createObjectURL(blob);
+          i.width = Math.min(size, 128);
+          i.height = Math.min(size, 128);
+          const lbl = document.createElement('small');
+          lbl.textContent = `${name} (${size}×${size})`;
+          wrap.appendChild(i);
+          wrap.appendChild(lbl);
+          preview.appendChild(wrap);
+        }
+        btn.textContent = '✓ Done — check your Downloads';
+      } catch (e) {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+        console.error(e);
+        showError(`${e.message || e}. If your browser is blocking downloads, allow multiple downloads when prompted.`);
+      }
+    });
+  </script>
+</body>
+</html>

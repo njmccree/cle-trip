@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1220">
+
+  <!-- iOS PWA / "Add to Home Screen" support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CLE Trip">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+  <title>Cleveland Trip — Swipe to Plan</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App shell -->
+  <div id="app">
+
+    <!-- Header -->
+    <header id="header">
+      <div class="header-title">🏙️ Cleveland Trip</div>
+      <div id="header-counter" class="header-counter"></div>
+    </header>
+
+    <!-- Discover (cards) -->
+    <main id="view-discover" class="view active">
+      <div id="filters" class="filters">
+        <button class="filter-chip active" data-cat="all">All</button>
+        <button class="filter-chip" data-cat="food">🍔 Food</button>
+        <button class="filter-chip" data-cat="bars">🍻 Bars</button>
+        <button class="filter-chip" data-cat="museums">🎭 Culture</button>
+        <button class="filter-chip" data-cat="sports">⚾ Sports</button>
+        <button class="filter-chip" data-cat="nearby">🏝️ Day Trips</button>
+        <button class="filter-chip" data-cat="golf">⛳ Golf</button>
+      </div>
+
+      <div id="card-stack" class="card-stack">
+        <!-- Cards injected here -->
+      </div>
+
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-emoji">🎉</div>
+        <h2>You've seen everything!</h2>
+        <p id="empty-summary">Nice work. Check what you liked, see what the group is into, or take another look at the ones you passed on.</p>
+        <button id="another-look" class="btn-primary">Take another look</button>
+        <button id="reset-all" class="btn-secondary">Start over</button>
+      </div>
+
+      <div id="action-bar" class="action-bar">
+        <button id="btn-pass" class="action-btn pass" aria-label="Pass">✕</button>
+        <button id="btn-info" class="action-btn info" aria-label="More info">i</button>
+        <button id="btn-like" class="action-btn like" aria-label="Like">♥</button>
+      </div>
+    </main>
+
+    <!-- Likes -->
+    <main id="view-likes" class="view">
+      <div class="list-header">
+        <h2>Your Picks</h2>
+        <p id="likes-count" class="muted">0 liked</p>
+      </div>
+      <div id="likes-list" class="list"></div>
+      <div id="likes-empty" class="empty-state small">
+        <div class="empty-emoji">💛</div>
+        <p>Nothing here yet — start swiping!</p>
+      </div>
+    </main>
+
+    <!-- Group -->
+    <main id="view-group" class="view">
+      <div class="list-header">
+        <h2>The Group's Picks</h2>
+        <p id="group-status" class="muted">Loading…</p>
+      </div>
+      <div id="group-list" class="list"></div>
+      <div id="group-empty" class="empty-state small hidden">
+        <div class="empty-emoji">🤷</div>
+        <p>No group likes yet. Be the first.</p>
+      </div>
+    </main>
+
+    <!-- Bottom nav -->
+    <nav id="tabbar">
+      <button class="tab active" data-view="discover">
+        <span class="tab-icon">🃏</span>
+        <span class="tab-label">Discover</span>
+      </button>
+      <button class="tab" data-view="likes">
+        <span class="tab-icon">💛</span>
+        <span class="tab-label">Likes</span>
+      </button>
+      <button class="tab" data-view="group">
+        <span class="tab-icon">👯</span>
+        <span class="tab-label">Group</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Info modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Firebase compat (loads from CDN; gracefully no-op if config not set) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+  <script src="activities.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Register service worker for offline / PWA support -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          // If a new SW is waiting, ask it to take over so users get the update
+          // immediately on next reload (instead of two reloads).
+          if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          reg.addEventListener('updatefound', () => {
+            const sw = reg.installing;
+            if (!sw) return;
+            sw.addEventListener('statechange', () => {
+              if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                sw.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+        }).catch(err => console.warn('SW registration failed:', err));
+
+        // Reload once when a new SW takes control
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          window.location.reload();
+        });
+      });
+    }
+  </script>
+</body>
+</html>
