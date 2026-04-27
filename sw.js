@@ -9,7 +9,7 @@
 // IMPORTANT: bump this version any time you change app.js, styles.css,
 // activities.js, or index.html — that's how clients know to fetch the
 // new files instead of serving stale ones from cache.
-const CACHE_VERSION = 'cle-trip-v5';
+const CACHE_VERSION = 'cle-trip-v6';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -18,6 +18,7 @@ const APP_SHELL = [
   './styles.css',
   './app.js',
   './activities.js',
+  './image-map.js',
   './firebase-config.js',
   './manifest.json',
   './icon.svg',
@@ -59,14 +60,17 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Never intercept Firebase / Google CDNs / map tiles — they need to be live.
+  // Never intercept Firebase / Google CDNs / map tiles / image hosts.
   const liveOrigins = [
     'firebaseio.com',
     'firebaseapp.com',
     'googleapis.com',
     'gstatic.com',
-    'unpkg.com',           // Leaflet
-    'tile.openstreetmap.org' // Map tiles
+    'unpkg.com',                  // Leaflet
+    'tile.openstreetmap.org',     // Map tiles
+    'upload.wikimedia.org',       // Wikipedia images
+    'images.pexels.com',          // Pexels images
+    'images.unsplash.com'         // Unsplash images (in case used manually)
   ];
   if (liveOrigins.some(o => url.hostname.endsWith(o))) {
     return; // browser handles it normally

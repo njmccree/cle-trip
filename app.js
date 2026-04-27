@@ -88,6 +88,18 @@
     return `linear-gradient(135deg, ${c1}, ${c2})`;
   }
 
+  // Procedural image resolver.
+  // Order: a.image (hand-set in activities.js) → IMAGE_MAP[id] → CATEGORY_FALLBACKS[cat] → null.
+  // Null means render as gradient + emoji.
+  function imageFor(a) {
+    if (a.image) return a.image;
+    const map = window.IMAGE_MAP || {};
+    if (map[a.id]) return map[a.id];
+    const fallbacks = window.CATEGORY_FALLBACKS || {};
+    if (fallbacks[a.category]) return fallbacks[a.category];
+    return null;
+  }
+
   function buildCard(activityId) {
     const a = activityById(activityId);
     if (!a) return null;
@@ -97,10 +109,11 @@
     card.className = 'card';
     card.dataset.id = a.id;
 
-    const bg = a.image
-      ? `background-image: url('${a.image}');`
+    const img = imageFor(a);
+    const bg = img
+      ? `background-image: url('${img}');`
       : `background: ${gradientCss(a)};`;
-    const emoji = a.image ? '' : (a.emoji || cat.emoji || '✨');
+    const emoji = img ? '' : (a.emoji || cat.emoji || '✨');
 
     const tagsHtml = (a.tags || []).slice(0, 3).map(t =>
       `<span class="card-tag">${t.replace(/-/g, ' ')}</span>`
@@ -382,10 +395,11 @@
     const item = document.createElement('div');
     item.className = 'list-item';
 
-    const thumbStyle = a.image
-      ? `background-image: url('${a.image}');`
+    const img = imageFor(a);
+    const thumbStyle = img
+      ? `background-image: url('${img}');`
       : `background: ${gradientCss(a)};`;
-    const thumbEmoji = a.image ? '' : (a.emoji || cat.emoji || '✨');
+    const thumbEmoji = img ? '' : (a.emoji || cat.emoji || '✨');
 
     item.innerHTML = `
       <div class="list-thumb" style="${thumbStyle}">${thumbEmoji}</div>

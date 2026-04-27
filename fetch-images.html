@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cleveland Trip — Image Picker</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      max-width: 1100px; margin: 32px auto; padding: 0 20px;
+      color: #0f172a; background: #f8fafc; line-height: 1.5;
+    }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    .lede { color: #64748b; margin-bottom: 24px; }
+    .panel {
+      background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 18px;
+    }
+    .panel h2 { font-size: 16px; margin-bottom: 8px; }
+    .panel p { font-size: 14px; color: #475569; margin-bottom: 8px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    button {
+      font: inherit; padding: 10px 16px; background: #0f172a; color: white;
+      border: 0; border-radius: 8px; cursor: pointer; font-weight: 600;
+    }
+    button:hover:not(:disabled) { background: #1e293b; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.secondary { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
+    button.secondary:hover:not(:disabled) { background: #f1f5f9; }
+    input[type=text], input[type=password] {
+      font: inherit; padding: 9px 12px; border: 1px solid #cbd5e1;
+      border-radius: 8px; background: white; min-width: 280px; flex: 1 1 280px;
+    }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .stats { display: flex; gap: 16px; font-size: 14px; color: #475569; }
+    .stat strong { color: #0f172a; font-size: 18px; display: block; }
+    progress { width: 100%; height: 8px; }
+
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px; margin-top: 14px;
+    }
+    .card {
+      background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .card-thumb {
+      aspect-ratio: 4/3; background: #e2e8f0; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #94a3b8; position: relative;
+    }
+    .card-thumb.empty { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #e2e8f0 10px, #e2e8f0 20px); }
+    .card-thumb .source-badge {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(15,23,42,0.85); color: white;
+      font-size: 10px; padding: 3px 7px; border-radius: 999px; font-weight: 600;
+    }
+    .card-meta { padding: 10px 12px; }
+    .card-title { font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
+    .card-cat { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+    .card-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .card-actions button {
+      padding: 5px 9px; font-size: 11px; background: #f1f5f9; color: #0f172a; border-radius: 6px; font-weight: 600;
+    }
+    .card-actions button.danger { background: #fef2f2; color: #b91c1c; }
+    .card-actions input { padding: 4px 8px; font-size: 11px; min-width: 0; flex: 1 1 100%; margin-top: 4px; }
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .filter-pill {
+      padding: 5px 10px; font-size: 12px; background: white; border: 1px solid #cbd5e1; border-radius: 999px; cursor: pointer; font-weight: 600;
+    }
+    .filter-pill.active { background: #0f172a; color: white; border-color: #0f172a; }
+
+    .err { background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+    .ok  { background: #ecfdf5; border-left: 4px solid #10b981; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🖼️ Cleveland Trip — Image Picker</h1>
+  <p class="lede">Procedurally fill in <code>image-map.js</code>. Auto-fetches from Wikipedia, falls back to Pexels (optional, free key).</p>
+
+  <div id="load-error" class="err" style="display:none;"></div>
+
+  <!-- Step 1: Wikipedia auto-fetch -->
+  <div class="panel">
+    <h2>Step 1 — Auto-fetch from Wikipedia (free, no key)</h2>
+    <p>Hits Wikipedia for every activity that doesn't have an image yet. Great for famous landmarks (Rock Hall, Cedar Point, West Side Market). Misses small restaurants and bars — Step 2 covers those.</p>
+    <div class="row">
+      <button id="run-wiki" disabled>Auto-fetch from Wikipedia</button>
+      <span id="wiki-progress"></span>
+    </div>
+    <progress id="wiki-pb" max="100" value="0" style="display:none;"></progress>
+  </div>
+
+  <!-- Step 2: Pexels API key + auto-fetch -->
+  <div class="panel">
+    <h2>Step 2 — Auto-fetch from Pexels (optional, free key)</h2>
+    <p>For everything Wikipedia missed. Get a free API key at <a href="https://www.pexels.com/api/" target="_blank">pexels.com/api</a> (takes 60 seconds — sign up, request key). 200 requests/hour free. Key is stored in your browser only — never sent anywhere.</p>
+    <div class="row">
+      <input type="password" id="pexels-key" placeholder="Paste Pexels API key here…" />
+      <button id="run-pexels" disabled>Auto-fetch from Pexels</button>
+    </div>
+    <progress id="pexels-pb" max="100" value="0" style="display:none;"></progress>
+    <div id="pexels-status" style="margin-top: 8px; font-size: 13px; color: #64748b;"></div>
+  </div>
+
+  <!-- Step 3: Review + export -->
+  <div class="panel">
+    <h2>Step 3 — Review &amp; export</h2>
+    <p>Review the picks below. Click <strong>Skip</strong> to clear, paste a custom URL to override, or click <strong>Re-search</strong> to try Pexels again with different terms.</p>
+    <div class="row">
+      <div class="stats">
+        <span class="stat"><strong id="stat-total">0</strong>activities</span>
+        <span class="stat"><strong id="stat-set">0</strong>have images</span>
+        <span class="stat"><strong id="stat-empty">0</strong>still empty</span>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-pill active" data-filter="all">All</button>
+      <button class="filter-pill" data-filter="empty">Needs image</button>
+      <button class="filter-pill" data-filter="set">Has image</button>
+    </div>
+    <div class="row" style="margin-top: 12px;">
+      <button id="export-btn">⬇️ Export image-map.js</button>
+      <button class="secondary" id="reset-btn">Clear all</button>
+    </div>
+    <div id="export-msg"></div>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <!-- Load app data -->
+  <script src="image-map.js"></script>
+  <script src="activities.js"></script>
+
+  <script>
+    // ============ State ============
+    const State = {
+      // Working copy of IMAGE_MAP, mutated as user fetches/edits.
+      images: {},
+      filter: 'all'
+    };
+
+    function init() {
+      if (typeof ACTIVITIES === 'undefined') {
+        const errEl = document.getElementById('load-error');
+        errEl.style.display = 'block';
+        errEl.innerHTML = `
+          <strong>Couldn't load <code>activities.js</code>.</strong><br>
+          This usually means you opened the file directly in Chrome (which blocks file:// script loads).
+          Either: (1) open in Firefox or Safari, or (2) serve the project locally — in your terminal run
+          <code>python3 -m http.server 8000</code> and open <code>http://localhost:8000/fetch-images.html</code>.
+        `;
+        return;
+      }
+
+      // Seed working copy from existing IMAGE_MAP
+      State.images = Object.assign({}, window.IMAGE_MAP || {});
+
+      document.getElementById('run-wiki').disabled = false;
+
+      const savedKey = localStorage.getItem('pexelsKey');
+      if (savedKey) document.getElementById('pexels-key').value = savedKey;
+      document.getElementById('pexels-key').addEventListener('input', (e) => {
+        localStorage.setItem('pexelsKey', e.target.value);
+        document.getElementById('run-pexels').disabled = !e.target.value.trim();
+      });
+      document.getElementById('run-pexels').disabled = !savedKey;
+
+      document.getElementById('run-wiki').addEventListener('click', autoFetchWikipedia);
+      document.getElementById('run-pexels').addEventListener('click', autoFetchPexels);
+      document.getElementById('export-btn').addEventListener('click', exportImageMap);
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        if (!confirm('Clear all auto-fetched images? (This only affects this page until you re-export.)')) return;
+        State.images = {};
+        renderGrid();
+      });
+      document.querySelectorAll('.filter-pill').forEach(p => {
+        p.addEventListener('click', () => {
+          document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+          p.classList.add('active');
+          State.filter = p.dataset.filter;
+          renderGrid();
+        });
+      });
+
+      renderGrid();
+    }
+
+    // ============ Wikipedia ============
+    async function fetchWikipediaImage(title) {
+      // Try a few common variants — direct, with "(Cleveland)" disambiguation,
+      // and replacing typographic apostrophes that mess up titles.
+      // Convert curly apostrophes (U+2019) to straight, then strip parenthetical bits.
+      const stripped = title.replace(/’/g, "'").replace(/[()].*$/, '').trim();
+      const variants = [
+        title,
+        stripped,
+        stripped + ' (Cleveland)',
+        stripped + ' Cleveland',
+      ];
+      for (const v of variants) {
+        try {
+          const r = await fetch(
+            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(v)}`,
+            { headers: { Accept: 'application/json' } }
+          );
+          if (!r.ok) continue;
+          const data = await r.json();
+          // Skip disambiguation pages and pages without thumbnails
+          if (data.type === 'disambiguation') continue;
+          if (data.thumbnail && data.thumbnail.source) {
+            // Upgrade thumbnail URL to a larger size by replacing the size segment
+            // (e.g., /320px-Foo.jpg -> /800px-Foo.jpg). Wikimedia supports any width.
+            const upgraded = data.thumbnail.source.replace(/\/\d+px-/, '/800px-');
+            return { url: upgraded, source: 'wiki' };
+          }
+        } catch (e) { /* try next variant */ }
+      }
+      return null;
+    }
+
+    async function autoFetchWikipedia() {
+      const btn = document.getElementById('run-wiki');
+      const pb = document.getElementById('wiki-pb');
+      const progEl = document.getElementById('wiki-progress');
+      btn.disabled = true;
+      pb.style.display = 'block';
+      pb.value = 0;
+
+      const todo = ACTIVITIES.filter(a => !State.images[a.id]);
+      let done = 0, found = 0;
+
+      for (const a of todo) {
+        progEl.textContent = `${a.title} (${done + 1} / ${todo.length})…`;
+        const result = await fetchWikipediaImage(a.title);
+        if (result) {
+          State.images[a.id] = { url: result.url, source: 'wiki' };
+          found++;
+        }
+        done++;
+        pb.value = (done / todo.length) * 100;
+        renderGrid();
+      }
+
+      progEl.textContent = `✓ Done — found ${found} of ${todo.length} via Wikipedia`;
+      btn.disabled = false;
+    }
+
+    // ============ Pexels ============
+    async function fetchPexelsImage(title, key) {
+      const query = encodeURIComponent(title + ' Cleveland');
+      try {
+        const r = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=1&orientation=landscape`, {
+          headers: { Authorization: key }
+        });
+        if (!r.ok) return null;
+        const data = await r.json();
+        if (data.photos && data.photos.length) {
+          return { url: data.photos[0].src.large, source: 'pexels' };
+        }
+      } catch (e) { /* swallow */ }
+      return null;
+    }
+
+    async function autoFetchPexels() {
+      const key = document.getElementById('pexels-key').value.trim();
+      if (!key) return;
+
+      const btn = document.getElementById('run-pexels');
+      const pb = document.getElementById('pexels-pb');
+      const status = document.getElementById('pexels-status');
+      btn.disabled = true;
+      pb.style.display = 'block';
+      pb.value = 0;
+
+      const todo = ACTIVITIES.filter(a => !State.images[a.id]);
+      let done = 0, found = 0;
+
+      for (const a of todo) {
+        status.textContent = `${a.title} (${done + 1} / ${todo.length})…`;
+        const result = await fetchPexelsImage(a.title, key);
+        if (result) {
+          State.images[a.id] = { url: result.url, source: 'pexels' };
+          found++;
+        }
+        done++;
+        pb.value = (done / todo.length) * 100;
+        renderGrid();
+        // Pexels free tier is 200/hr, so go easy — 100ms gap
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      status.textContent = `✓ Done — found ${found} of ${todo.length} via Pexels`;
+      btn.disabled = false;
+    }
+
+    // ============ Render ============
+    function normalizeImageEntry(v) {
+      // Working state stores either { url, source } or a plain string (legacy).
+      if (typeof v === 'string') return { url: v, source: 'manual' };
+      return v;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      let total = ACTIVITIES.length, set = 0;
+      ACTIVITIES.forEach(a => {
+        const entry = normalizeImageEntry(State.images[a.id]);
+        if (entry && entry.url) set++;
+      });
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-set').textContent = set;
+      document.getElementById('stat-empty').textContent = total - set;
+
+      ACTIVITIES.forEach(a => {
+        const entry = normalizeImageEntry(State.images[a.id]);
+        const hasImg = entry && entry.url;
+        if (State.filter === 'set' && !hasImg) return;
+        if (State.filter === 'empty' && hasImg) return;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        const cat = (typeof CATEGORIES !== 'undefined' && CATEGORIES[a.category]) || {};
+
+        const thumbStyle = hasImg ? `background-image: url('${entry.url}');` : '';
+        const sourceBadge = hasImg ? `<span class="source-badge">${entry.source}</span>` : '';
+        const placeholder = hasImg ? '' : 'No image';
+
+        card.innerHTML = `
+          <div class="card-thumb ${hasImg ? '' : 'empty'}" style="${thumbStyle}">
+            ${sourceBadge}
+            ${placeholder}
+          </div>
+          <div class="card-meta">
+            <div class="card-title">${escapeHtml(a.title)}</div>
+            <div class="card-cat">${cat.emoji || ''} ${cat.label || a.category}</div>
+            <div class="card-actions">
+              <button data-action="research" data-id="${a.id}">Re-search</button>
+              <button data-action="skip" data-id="${a.id}" class="danger">Skip</button>
+              <input type="text" placeholder="Paste image URL…" data-action="paste" data-id="${a.id}" value="${hasImg ? escapeHtml(entry.url) : ''}" />
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Bind buttons / inputs
+      grid.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const a = ACTIVITIES.find(x => x.id === id);
+          if (btn.dataset.action === 'skip') {
+            delete State.images[id];
+            renderGrid();
+          } else if (btn.dataset.action === 'research') {
+            researchOne(a);
+          }
+        });
+      });
+      grid.querySelectorAll('input[data-action="paste"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const id = input.dataset.id;
+          const v = e.target.value.trim();
+          if (v) State.images[id] = { url: v, source: 'manual' };
+          else delete State.images[id];
+          renderGrid();
+        });
+      });
+    }
+
+    async function researchOne(a) {
+      const key = document.getElementById('pexels-key').value.trim();
+      // Try Wikipedia again (in case title was edited), then Pexels if key
+      const w = await fetchWikipediaImage(a.title);
+      if (w) {
+        State.images[a.id] = { url: w.url, source: 'wiki' };
+      } else if (key) {
+        const p = await fetchPexelsImage(a.title, key);
+        if (p) State.images[a.id] = { url: p.url, source: 'pexels' };
+      } else {
+        alert('Wikipedia had no match. Add a Pexels API key above to try Pexels too.');
+      }
+      renderGrid();
+    }
+
+    // ============ Export ============
+    function exportImageMap() {
+      const lines = [];
+      lines.push('/* =========================================');
+      lines.push('   Cleveland Trip — image map');
+      lines.push('   Generated by fetch-images.html — replace this file with the download.');
+      lines.push('   See README.md → "Procedural images" for how to regenerate.');
+      lines.push('   ========================================= */');
+      lines.push('');
+      lines.push('const IMAGE_MAP = {');
+      ACTIVITIES.forEach(a => {
+        const entry = normalizeImageEntry(State.images[a.id]);
+        if (entry && entry.url) {
+          // JSON.stringify safely escapes any URL — quotes, backslashes, control chars.
+          const safeUrl = JSON.stringify(entry.url);
+          lines.push(`  ${JSON.stringify(a.id)}: ${safeUrl}, /* ${entry.source} */`);
+        }
+      });
+      lines.push('};');
+      lines.push('');
+      lines.push('// Optional fallbacks — used when an activity has no specific image.');
+      lines.push('// Leave entries empty/null to fall back to the gradient + emoji card.');
+      lines.push('const CATEGORY_FALLBACKS = window.CATEGORY_FALLBACKS || {');
+      lines.push('  food: null, bars: null, museums: null, sports: null, nearby: null, golf: null');
+      lines.push('};');
+      lines.push('');
+      lines.push('if (typeof window !== "undefined") {');
+      lines.push('  window.IMAGE_MAP = IMAGE_MAP;');
+      lines.push('  window.CATEGORY_FALLBACKS = CATEGORY_FALLBACKS;');
+      lines.push('}');
+      lines.push('');
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/javascript' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'image-map.js';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      const msg = document.getElementById('export-msg');
+      msg.innerHTML = '<div class="ok">Downloaded! Move it from your Downloads folder into the project root (replacing the existing <code>image-map.js</code>), then commit and push.</div>';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Boot
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
