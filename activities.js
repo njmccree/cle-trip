@@ -1,6 +1,11 @@
-// Cleveland Trip — activities dataset
-// Curated for a group of 8 first-timer friends (24-32).
+// Trip Planner — activities dataset
+// Multi-city. Each activity is tagged with `city: '<city-key>'`.
+// The full list of supported cities + per-city metadata is in CITIES below.
+//
 // Each activity may include:
+//   - city        Defaults to DEFAULT_CITY (cleveland) if omitted. For any
+//                 activity in a city other than the default, set this explicitly
+//                 to the matching CITIES key (e.g. 'traverse-city').
 //   - lat/lng     (REQUIRED for the map; some are neighborhood-level approximations)
 //   - phone       (E.164 format; tel: link target. Only added when high-confidence)
 //   - website     (only added when high-confidence)
@@ -9,7 +14,51 @@
 //                 Omit for sports games / event-based / always-open.
 //   - daypart     ['morning'|'lunch'|'afternoon'|'evening'|'late'] — for "What's Next?"
 //                 Defaults to ['afternoon','evening'] if omitted.
-// To add a real photo: set `image: 'https://...'` on an activity.
+// To add a real photo: set `image: 'https://...'` on an activity, or use the
+// image-map.js system (see fetch-images.html).
+//
+// To add a new city: add an entry to CITIES below and start adding activities
+// tagged with that city's key.
+
+const CITIES = {
+  cleveland: {
+    label: 'Cleveland',
+    state: 'OH',
+    short: 'CLE',
+    emoji: '🏙️',
+    // Map default center + zoom when this city is selected
+    lat: 41.4993, lng: -81.6944, mapZoom: 11,
+    // Hardcoded trip dates (used by What's Next? and the events filter)
+    tripStart: '2026-06-04',
+    tripEnd: '2026-06-09'
+  },
+  'traverse-city': {
+    label: 'Traverse City',
+    state: 'MI',
+    short: 'TVC',
+    emoji: '🍒',
+    lat: 44.7631, lng: -85.6206, mapZoom: 12,
+    tripStart: null, tripEnd: null  // set when a trip is scheduled
+  },
+  'mackinaw-city': {
+    label: 'Mackinaw City',
+    state: 'MI',
+    short: 'MCY',
+    emoji: '🌉',
+    lat: 45.7833, lng: -84.7272, mapZoom: 13,
+    tripStart: null, tripEnd: null
+  },
+  gladwin: {
+    label: 'Gladwin',
+    state: 'MI',
+    short: 'GLD',
+    emoji: '🌲',
+    lat: 43.9806, lng: -84.4861, mapZoom: 13,
+    tripStart: null, tripEnd: null
+  }
+};
+
+const DEFAULT_CITY = 'cleveland';
 
 const CATEGORIES = {
   food:        { label: 'Food',        emoji: '🍔', gradient: ['#ff6b6b', '#ffa94d'], pin: '#ef4444' },
@@ -352,6 +401,9 @@ const ACTIVITIES = [
     daypart: ['evening','late'],
     description: 'Bowling alley + bar + music venue in Lakewood — wood lanes from 1924, a great stage, and a kitchen with pierogi nachos.',
     info: '13200 Madison Ave, Lakewood • Daily, late',
+    events: [
+      { date: '2026-06-09', time: '19:00', name: 'Haiden Henderson (indie/pop singer-songwriter)' }
+    ],
     tags: ['games', 'music', 'late', 'group-friendly'] },
 
   { id: 'now-thats-class', title: "Now That's Class", category: 'bars', emoji: '🎸',
@@ -459,6 +511,7 @@ const ACTIVITIES = [
     daypart: ['morning','afternoon'],
     description: 'World-class collection — and free admission. Rodin, Picasso, an armor court that looks like a video game. Easy 2-hour visit.',
     info: '11150 East Blvd • Tue-Sun • FREE • University Circle',
+    eventsNote: 'Two big special exhibitions running during your trip: "Manet & Morisot" (Apr 12 - Aug 9, 2026) and "Pintoricchio Magnified: An Immersive Conservation Experience" (Mar 29 - Jul 5, 2026). Both ticketed; permanent collection still free.',
     tags: ['free', 'rainy-day', 'iconic'] },
 
   { id: 'natural-history', title: 'Cleveland Museum of Natural History', category: 'museums', emoji: '🦕',
@@ -495,6 +548,7 @@ const ACTIVITIES = [
     daypart: ['afternoon'],
     description: 'Compact, well-curated museum on the immigrant experience and Jewish-American history — strong special exhibits.',
     info: '2929 Richmond Rd, Beachwood • Tue-Sun • $16',
+    eventsNote: '"Icons in Ink: The Jewish Comics Experience" runs May 7 - Aug 23, 2026 — includes a "Cleveland: Home of Heroes!" section on Siegel & Shuster (Superman\'s creators).',
     tags: ['rainy-day', 'history'] },
 
   { id: 'uss-cod', title: 'USS Cod Submarine', category: 'museums', emoji: '🚢',
@@ -661,6 +715,7 @@ const ACTIVITIES = [
     daypart: ['afternoon','evening'],
     description: 'Two-hour Lake Erie + Cuyahoga River cruise — bridges, skyline, sunset options. Touristy but actually delivers.',
     info: '825 E 9th St Pier • May-Sep • $25',
+    eventsNote: 'Saturday Dinner & City Lights cruises run all summer — Sat Jun 6 is in your window. Reservations recommended.',
     tags: ['lake', 'iconic', 'date-night', 'group-friendly'] },
 
   { id: 'metroparks-bike-trail', title: 'Lakefront Bikeway', category: 'sports', emoji: '🚴',
@@ -681,8 +736,13 @@ const ACTIVITIES = [
   { id: 'public-square', title: 'Public Square', category: 'sports', emoji: '⛲',
     lat: 41.4998, lng: -81.6939,
     daypart: ['morning','afternoon','evening'],
-    description: 'Reimagined heart of downtown — fountains in summer, ice rink in winter. Free, lively, easy meet-up spot.',
+    description: 'Reimagined heart of downtown — fountains in summer, ice rink in winter. Free, lively, easy meet-up spot. Two of Downtown Cleveland Inc\'s free summer-series nights land in your trip.',
     info: 'Downtown • Free • Year-round',
+    events: [
+      { date: '2026-06-04', time: '20:00', name: 'Public Square Movie Night (free outdoor film + food trucks)' },
+      { date: '2026-06-05', time: '18:00', name: 'Friday Line Dancing on the Square (free, 6-8 PM)' }
+    ],
+    eventsNote: 'Public Square Movie Nights run select Thursdays Jun-Oct at 8 PM; Line Dancing every Friday Jun-Sep, 6-8 PM with a pop-up bar. Lineup at downtowncleveland.com.',
     tags: ['free', 'walking', 'downtown'] },
 
   { id: 'flats-river-bike', title: 'Cuyahoga River Walk', category: 'sports', emoji: '🚶',
@@ -998,12 +1058,182 @@ const ACTIVITIES = [
     daypart: ['morning','afternoon'],
     description: 'Top-100 modern course east of town — Tom Fazio design, immaculate. Expensive guest fee but a once-a-trip splurge.',
     info: 'Chardon, OH • Guest play only • $$$',
-    tags: ['serious-golf', 'special-occasion', 'splurge'] }
+    tags: ['serious-golf', 'special-occasion', 'splurge'] },
+
+  // ===== TRIP-WEEK EVENTS (June 4-9, 2026) =====
+  // Concert venues, theaters, festivals, races, special exhibits — all date-specific.
+
+  { id: 'jacobs-pavilion', title: 'Jacobs Pavilion at Nautica', category: 'bars', emoji: '🎤',
+    lat: 41.4925, lng: -81.7066,
+    website: 'https://jacobspavilion.com',
+    daypart: ['evening','late'],
+    description: 'Outdoor amphitheater on the Cuyahoga River — open-air shows with the lights of the bridges behind the stage. Two big tour stops back-to-back during your trip.',
+    info: '2014 Sycamore St (Flats West Bank) • Tickets via Live Nation/Ticketmaster',
+    events: [
+      { date: '2026-06-04', time: '18:30', name: 'Hot Mulligan w/ Joyce Manor (pop-punk double-bill)' },
+      { date: '2026-06-05', time: '20:00', name: 'Mt. Joy (indie folk-rock)' }
+    ],
+    tags: ['music', 'group-friendly', 'summer', 'memorable'] },
+
+  { id: 'agora-theatre', title: 'Agora Theatre & Ballroom', category: 'bars', emoji: '🎶',
+    lat: 41.5034, lng: -81.6553,
+    website: 'https://agoracleveland.com',
+    daypart: ['evening','late'],
+    description: 'Historic Cleveland concert hall with a balcony and serious acoustics — Springsteen, Bowie, U2 cut early sets here. Iration headlining a Friday-night reggae-rock show during the trip.',
+    info: '5000 Euclid Ave • Tickets via AXS',
+    events: [
+      { date: '2026-06-05', time: '19:00', name: 'Iration with Tribal Seeds (reggae-rock)' }
+    ],
+    tags: ['music', 'iconic', 'late'] },
+
+  { id: 'rocket-arena', title: 'Rocket Arena', category: 'museums', emoji: '🏟️',
+    lat: 41.4965, lng: -81.6882,
+    website: 'https://www.rocketarena.com',
+    daypart: ['evening'],
+    description: 'Downtown\'s big arena (formerly Rocket Mortgage FieldHouse) — Cavs in winter, arena tours all summer. 5 Seconds of Summer\'s "Everyone\'s a Star!" tour stops here on the last night of your trip.',
+    info: '1 Center Court • Tickets via Ticketmaster',
+    events: [
+      { date: '2026-06-09', time: '20:00', name: '5 Seconds of Summer — EVERYONE\'S A STAR! World Tour' }
+    ],
+    tags: ['music', 'iconic', 'group-friendly'] },
+
+  { id: 'house-of-blues', title: 'House of Blues Cleveland', category: 'bars', emoji: '🎷',
+    lat: 41.4995, lng: -81.6916,
+    website: 'https://www.houseofblues.com/cleveland',
+    daypart: ['evening','late'],
+    description: 'Mid-size music venue + restaurant downtown — three rooms, gospel brunches, low-ceiling sweatbox energy upstairs. Three confirmed shows during your trip span Latin, classical-crossover, and hip-hop.',
+    info: '308 Euclid Ave • Tickets via Ticketmaster',
+    events: [
+      { date: '2026-06-06', time: '18:00', name: 'Rene Vaca (18+, Latin/regional)' },
+      { date: '2026-06-07', time: '17:00', name: 'John Violinist (solo violin / classical-crossover)' },
+      { date: '2026-06-09', time: '19:00', name: 'BabyFxce E (hip-hop)' }
+    ],
+    tags: ['music', 'late', 'group-friendly'] },
+
+  { id: 'hilarities', title: 'Hilarities 4th Street Theatre', category: 'bars', emoji: '🎤',
+    lat: 41.4988, lng: -81.6878,
+    website: 'https://www.pickwickandfrolic.com/hilarities',
+    daypart: ['evening','late'],
+    description: 'East 4th\'s stand-up room inside Pickwick & Frolic — touring headliners, full bar service in the room. Kam Patterson opening night of the trip.',
+    info: '2035 E 4th St • 2-drink min • Tickets via Hilarities',
+    events: [
+      { date: '2026-06-04', time: '19:30', name: 'Kam Patterson (stand-up)' }
+    ],
+    tags: ['comedy', 'late', 'date-night', 'group-friendly'] },
+
+  { id: 'funny-bone', title: 'Funny Bone Cleveland (Improv)', category: 'bars', emoji: '😂',
+    lat: 41.4994, lng: -81.7016,
+    website: 'https://cleveland.funnybone.com',
+    daypart: ['evening','late'],
+    description: 'Comedy club in the Flats East Bank — touring stand-up Friday through Sunday with multiple shows on Saturday. Headliner not yet announced for your weekend.',
+    info: '1148 Main Ave (Flats East Bank) • Doors 6 PM Fri, multiple shows Sat',
+    eventsNote: 'Weekend run Fri Jun 5 - Sun Jun 7 — headliner TBA. Verify on cleveland.funnybone.com closer to the trip.',
+    tags: ['comedy', 'late', 'group-friendly'] },
+
+  { id: 'dobama-theatre', title: 'Dobama Theatre — Kids\' Playwriting Festival', category: 'museums', emoji: '🎭',
+    lat: 41.5025, lng: -81.5762,
+    phone: '+12169322558', website: 'https://www.dobama.org',
+    daypart: ['evening'],
+    description: 'Cleveland Heights black-box theater. The Marilyn Bianchi Kids\' Playwriting Festival — short plays written by kids, staged by adult actors — runs the first week of your trip. Most performances free, sometimes wonderfully unhinged.',
+    info: '2340 Lee Rd, Cleveland Heights • Most performances free',
+    events: [
+      { date: '2026-06-04', time: '19:00', name: 'Marilyn Bianchi Kids\' Playwriting Festival' },
+      { date: '2026-06-05', time: '19:00', name: 'Marilyn Bianchi Kids\' Playwriting Festival' },
+      { date: '2026-06-06', time: '19:00', name: 'Marilyn Bianchi Kids\' Playwriting Festival' },
+      { date: '2026-06-07', time: '14:00', name: 'Marilyn Bianchi closing benefit (ticketed)' }
+    ],
+    tags: ['theater', 'free', 'date-night', 'hidden-gem', 'weird-fun'] },
+
+  { id: 'little-italy-art-walk', title: 'Little Italy Summer Art Walk', category: 'museums', emoji: '🎨',
+    lat: 41.5093, lng: -81.6020,
+    website: 'https://littleitalycle.com',
+    daypart: ['afternoon','evening'],
+    description: '30+ year tradition — galleries open up and down Mayfield and Murray Hill, with outdoor vendors on Sunday. Combine with Mama Santa\'s, Presti\'s, or Corbo\'s for a perfect Little Italy afternoon.',
+    info: 'Mayfield Rd & Murray Hill (Little Italy) • Free',
+    events: [
+      { date: '2026-06-05', time: '17:00', name: 'Little Italy Art Walk — opening evening (galleries)' },
+      { date: '2026-06-06', time: '12:00', name: 'Little Italy Art Walk — Saturday galleries open' },
+      { date: '2026-06-07', time: '12:00', name: 'Little Italy Art Walk — Sunday vendors + galleries' }
+    ],
+    tags: ['free', 'art', 'walking', 'group-friendly', 'iconic'] },
+
+  { id: 'art-by-the-falls', title: 'Art by the Falls (Chagrin Falls)', category: 'nearby', emoji: '🖼️',
+    lat: 41.4214, lng: -81.3845,
+    website: 'https://www.valleyartcenter.org/artbythefalls.html',
+    daypart: ['morning','afternoon'],
+    description: '42nd-annual juried art and craft festival on the Polo Field east of the city — 100+ artists, food vendors, picture-book town nearby. Easy half-day, then dinner in Chagrin Falls.',
+    info: '3801 Chagrin River Rd, Moreland Hills • Sat 10a-7p, Sun 10a-4p • ~$8 admission',
+    events: [
+      { date: '2026-06-06', time: '10:00', name: 'Art by the Falls — Saturday (10 AM - 7 PM)' },
+      { date: '2026-06-07', time: '10:00', name: 'Art by the Falls — Sunday (10 AM - 4 PM)' }
+    ],
+    tags: ['day-trip', 'art', 'group-friendly', 'photogenic'] },
+
+  { id: 'resiliency-run', title: 'MetroHealth Resiliency Run 5K', category: 'sports', emoji: '🏃',
+    lat: 41.4490, lng: -81.7080,
+    website: 'https://findarace.com/us/events/metrohealth-resiliency-run',
+    daypart: ['morning'],
+    description: 'Annual 5K, 1-mile walk, and Kids Dash through the Cleveland Metroparks Zoo — Saturday-morning crowd-mover. Register the night before, hit the zoo afterward.',
+    info: 'Cleveland Metroparks Zoo, 3900 Wildlife Way • Sat Jun 6 morning',
+    events: [
+      { date: '2026-06-06', time: '08:00', name: '10th Annual MetroHealth Resiliency Run (5K + 1-mi + Kids Dash)' }
+    ],
+    tags: ['active', 'group-friendly', 'morning', 'memorable'] },
+
+  { id: 'celebrity-softball', title: 'Clear Vision Celebrity Softball (Denzel Ward)', category: 'sports', emoji: '🥎',
+    lat: 41.6595, lng: -81.4108,
+    website: 'https://www.milb.com/lake-county',
+    daypart: ['afternoon','evening'],
+    description: 'Browns CB Denzel Ward\'s charity celebrity softball game at the Lake County Captains stadium — past years have drawn NFL, NBA, and music guests. Easy 30-minute drive east, way more accessible than a Browns game.',
+    info: 'Classic Auto Group Park, 35300 Vine St, Eastlake • Sat Jun 6 • Verify time at milb.com/lake-county',
+    events: [
+      { date: '2026-06-06', time: '17:00', name: 'Clear Vision Celebrity Softball Game (time TBC)' }
+    ],
+    tags: ['day-trip', 'gameday', 'group-friendly', 'memorable'] },
+
+  { id: 'lake-county-captains', title: 'Lake County Captains (MiLB)', category: 'sports', emoji: '⚓',
+    lat: 41.6595, lng: -81.4108,
+    website: 'https://www.milb.com/lake-county',
+    daypart: ['evening'],
+    description: 'Guardians High-A affiliate, 30 minutes east. Cheaper tickets, $2 dollar-dog nights, fireworks on weekends — a different baseball flavor than Progressive Field, with the same prospects two years before they make The Show.',
+    info: 'Classic Auto Group Park, Eastlake',
+    eventsNote: 'June 4-9 home schedule: verify exact dates at milb.com/lake-county/schedule — homestand timing varies year to year.',
+    tags: ['gameday', 'cheap', 'group-friendly', 'day-trip'] },
+
+  { id: 'coit-road-market', title: 'Coit Road Farmers Market', category: 'food', emoji: '🥕',
+    lat: 41.5440, lng: -81.5680,
+    website: 'https://www.coitmarket.org',
+    hours: { open: 9, close: 13, closedDays: [0,1,3,4,5] },
+    daypart: ['morning'],
+    description: 'Year-round outdoor farmers market in East Cleveland — under-the-radar produce stands, baked goods, hot breakfast. Sat Jun 6 in your window.',
+    info: '15000 Woodworth Rd • Sat 9a-1p, Tue 5-8p • Free entry',
+    events: [
+      { date: '2026-06-06', time: '09:00', name: 'Coit Road Farmers Market (Saturday)' }
+    ],
+    tags: ['breakfast', 'free', 'morning', 'hidden-gem'] },
+
+  { id: 'shaker-square-market', title: 'Shaker Square Farmers Market', category: 'food', emoji: '🌽',
+    lat: 41.4750, lng: -81.5790,
+    website: 'https://www.northunionfarmersmarket.org',
+    hours: { open: 8, close: 12, closedDays: [0,1,2,3,4,5] },
+    daypart: ['morning'],
+    description: 'North Union\'s Saturday market on Shaker Square — farm stands, prepared foods, coffee. Pair with brunch at Felice or a walk around the square.',
+    info: '13209 Shaker Square • Sat 8a-12p (Apr-Dec) • Free entry',
+    events: [
+      { date: '2026-06-06', time: '08:00', name: 'Shaker Square Farmers Market (Saturday)' }
+    ],
+    tags: ['breakfast', 'morning', 'free'] }
 ];
 
 // Sanity log when this file loads
 if (typeof window !== 'undefined') {
   window.ACTIVITIES = ACTIVITIES;
   window.CATEGORIES = CATEGORIES;
-  console.log(`Loaded ${ACTIVITIES.length} activities`);
+  window.CITIES = CITIES;
+  window.DEFAULT_CITY = DEFAULT_CITY;
+  const byCity = ACTIVITIES.reduce((m, a) => {
+    const c = a.city || DEFAULT_CITY;
+    m[c] = (m[c] || 0) + 1; return m;
+  }, {});
+  console.log(`Loaded ${ACTIVITIES.length} activities across cities:`, byCity);
 }

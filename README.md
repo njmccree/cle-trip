@@ -131,6 +131,38 @@ Cleveland Trip App/
 └── README.md             # This file
 ```
 
+### Adding a new city
+
+The app is multi-city. Tap the header (where the city name + chevron is) to switch between trips. Currently configured: **Cleveland**, **Traverse City**, **Mackinaw City**, **Gladwin**.
+
+To add another city:
+
+1. Open `activities.js`. Find the `CITIES` object near the top and add a new entry:
+   ```js
+   'ann-arbor': {
+     label: 'Ann Arbor',
+     state: 'MI',
+     short: 'A2',
+     emoji: '🌳',
+     lat: 42.2808, lng: -83.7430,
+     mapZoom: 13,
+     tripStart: '2026-09-12',   // YYYY-MM-DD, or null if no trip is set
+     tripEnd:   '2026-09-15'    // null if no trip is set
+   }
+   ```
+2. Add activities anywhere in the `ACTIVITIES` array, tagged with `city: 'ann-arbor'`:
+   ```js
+   { id: 'zingermans', title: "Zingerman's Deli", category: 'food',
+     city: 'ann-arbor',
+     lat: 42.2811, lng: -83.7332,
+     ...
+   }
+   ```
+   Activities without a `city` field default to Cleveland.
+3. Commit and push — done. The header dropdown will pick it up automatically.
+
+**Per-city state:** user likes, passes, and group vote counts are stored by activity ID, but the **views are filtered by current city** — so liking something in Cleveland doesn't show up in your Traverse City likes tab. Trip dates are also per-city — set `tripStart` / `tripEnd` to enable the "What's Next?" daypart logic and the "During your trip" events section for that city. Leave them `null` if you don't have a trip scheduled yet.
+
 ### Procedural images
 
 Card backgrounds resolve in this order:

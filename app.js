@@ -8,16 +8,53 @@
 (function () {
   'use strict';
 
-  // ---------- Trip constants ----------
-  // Hardcoded trip dates — used by What's Next? and any seasonality logic.
-  const TRIP_START = new Date('2026-06-04T00:00:00');
-  const TRIP_END   = new Date('2026-06-09T23:59:59');
-  // Downtown Cleveland — fallback "current location" if geolocation isn't available.
-  const CLE_DOWNTOWN = { lat: 41.4993, lng: -81.6944 };
+  // ---------- City helpers ----------
+  const DEFAULT_CITY_KEY = (typeof window !== 'undefined' && window.DEFAULT_CITY) || 'cleveland';
+
+  function currentCity() {
+    const cities = (typeof window !== 'undefined' && window.CITIES) || {};
+    return cities[state.city] || cities[DEFAULT_CITY_KEY] || { lat: 41.4993, lng: -81.6944, mapZoom: 11, label: 'Cleveland' };
+  }
+
+  // Center used by the map and as a fallback origin when GPS isn't available.
+  function currentCityCenter() {
+    const c = currentCity();
+    return { lat: c.lat, lng: c.lng };
+  }
+
+  // Trip dates from the current city's CITIES entry. May be null if no trip is set.
+  function currentTripDates() {
+    const c = currentCity();
+    return {
+      start: c.tripStart ? new Date(c.tripStart + 'T00:00:00') : null,
+      end:   c.tripEnd   ? new Date(c.tripEnd   + 'T23:59:59') : null
+    };
+  }
+
+  function activityCity(a) {
+    return a.city || DEFAULT_CITY_KEY;
+  }
+
+  function isInCurrentCity(a) {
+    return activityCity(a) === state.city;
+  }
+
+  function activitiesInCurrentCity() {
+    return ACTIVITIES.filter(isInCurrentCity);
+  }
+
+  // "Cleveland", "Traverse City, MI", etc. — used in directions/search queries.
+  // Uses the activity's own city (not necessarily the currently-viewed one).
+  function cityLabelFor(a) {
+    const cities = (typeof window !== 'undefined' && window.CITIES) || {};
+    const c = cities[activityCity(a)] || {};
+    return c.label ? (c.state ? `${c.label}, ${c.state}` : c.label) : 'Cleveland';
+  }
 
   // ---------- State ----------
   const STORAGE_KEY = 'cle-trip-v1';
   const state = {
+    city: DEFAULT_CITY_KEY, // hydrated from localStorage in loadState()
     filter: 'all',
     likes: new Set(),
     passes: new Set(),
@@ -40,6 +77,9 @@
       const data = JSON.parse(raw);
       state.likes = new Set(data.likes || []);
       state.passes = new Set(data.passes || []);
+      // Restore last-selected city if it's still valid
+      const cities = (window.CITIES) || {};
+      if (data.city && cities[data.city]) state.city = data.city;
     } catch (e) { console.warn('Failed to load state:', e); }
   }
 
@@ -47,14 +87,15 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         likes: [...state.likes],
-        passes: [...state.passes]
+        passes: [...state.passes],
+        city: state.city
       }));
     } catch (e) { console.warn('Failed to save state:', e); }
   }
 
   // ---------- Deck building ----------
   function buildDeck() {
-    const filtered = ACTIVITIES.filter(a =>
+    const filtered = activitiesInCurrentCity().filter(a =>
       state.filter === 'all' || a.category === state.filter
     );
 
@@ -180,7 +221,7 @@
   }
 
   function updateHeaderCounter() {
-    const total = ACTIVITIES.filter(a =>
+    const total = activitiesInCurrentCity().filter(a =>
       state.filter === 'all' || a.category === state.filter
     ).length;
     const remaining = state.deck.length;
@@ -343,7 +384,7 @@
     const empty = document.getElementById('likes-empty');
     const count = document.getElementById('likes-count');
 
-    const liked = ACTIVITIES.filter(a => state.likes.has(a.id));
+    const liked = activitiesInCurrentCity().filter(a => state.likes.has(a.id));
     count.textContent = `${liked.length} liked`;
     list.innerHTML = '';
     if (liked.length === 0) {
@@ -370,7 +411,7 @@
     }
 
     const counts = state.groupCounts || {};
-    const ranked = ACTIVITIES
+    const ranked = activitiesInCurrentCity()
       .map(a => ({ a, n: counts[a.id] || 0 }))
       .filter(x => x.n > 0)
       .sort((x, y) => y.n - x.n);
@@ -453,13 +494,16 @@
 
   /**
    * renderEventsSection(a)
-   * Shows scheduled events during the trip (June 4-9, 2026) in a clean card.
+   * Shows scheduled events during the current city's trip window (if set).
+   * If the city has no trip dates configured, all events for the activity show.
    * If `eventsNote` is set instead, shows that as a simple note.
    */
   function renderEventsSection(a) {
+    const { start: tripStart, end: tripEnd } = currentTripDates();
     const events = (a.events || []).filter(e => {
       const d = new Date(e.date + 'T00:00:00');
-      return d >= TRIP_START && d <= TRIP_END;
+      if (!tripStart || !tripEnd) return true; // no trip set → show all events
+      return d >= tripStart && d <= tripEnd;
     });
 
     if (events.length === 0 && !a.eventsNote) return '';
@@ -518,7 +562,7 @@
     // Directions — always present
     const dirUrl = a.lat && a.lng
       ? `https://www.google.com/maps/dir/?api=1&destination=${a.lat},${a.lng}&destination_place_id=${encodeURIComponent(a.title)}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.title + ' Cleveland')}`;
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.title + ' ' + cityLabelFor(a))}`;
     links.push({ icon: '🧭', label: 'Directions', href: dirUrl });
 
     // Call — only if we have a number
@@ -530,7 +574,7 @@
     if (a.website) {
       links.push({ icon: '🌐', label: 'Website', href: a.website });
     } else {
-      links.push({ icon: '🔎', label: 'Search', href: `https://www.google.com/search?q=${encodeURIComponent(a.title + ' Cleveland')}` });
+      links.push({ icon: '🔎', label: 'Search', href: `https://www.google.com/search?q=${encodeURIComponent(a.title + ' ' + cityLabelFor(a))}` });
     }
 
     return links.map(l =>
@@ -643,14 +687,23 @@
     return 'late';
   }
 
-  // Tripification of "now": if the user is testing pre-trip, behave as if it
-  // were a Saturday afternoon during the trip — so What's Next? still works.
+  // Tripification of "now": if the user is testing outside the current city's
+  // trip window, behave as if it were the Saturday of that trip — so What's
+  // Next? still works. If the current city has no trip dates set, just use now.
   function effectiveNow() {
     const now = new Date();
-    if (now >= TRIP_START && now <= TRIP_END) return now;
-    // Pre/post-trip: default to "Saturday June 6, 2026 at the current local time"
-    // so the daypart still maps to wall-clock and weekend hours apply.
-    const fake = new Date('2026-06-06T00:00:00');
+    const { start: tripStart, end: tripEnd } = currentTripDates();
+    if (!tripStart || !tripEnd) return now;
+    if (now >= tripStart && now <= tripEnd) return now;
+    // Outside the trip window: fake the date to be the Saturday of the trip
+    // (or trip start if no Saturday falls in the window) at current wall-clock.
+    const fake = new Date(tripStart);
+    // Walk forward up to 6 days to find a Saturday
+    for (let i = 0; i < 7; i++) {
+      if (fake.getDay() === 6) break;
+      fake.setDate(fake.getDate() + 1);
+      if (fake > tripEnd) { fake.setTime(tripStart.getTime()); break; }
+    }
     fake.setHours(now.getHours(), now.getMinutes(), 0, 0);
     return fake;
   }
@@ -660,16 +713,17 @@
   // ===========================================
 
   function getMapSourceActivities() {
+    const inCity = activitiesInCurrentCity();
     let pool;
     if (state.mapSource === 'group' && window.FIREBASE_READY) {
       const counts = state.groupCounts || {};
-      pool = ACTIVITIES.filter(a => (counts[a.id] || 0) > 0);
+      pool = inCity.filter(a => (counts[a.id] || 0) > 0);
       // Fallback to user's likes if group is empty
-      if (pool.length === 0) pool = ACTIVITIES.filter(a => state.likes.has(a.id));
+      if (pool.length === 0) pool = inCity.filter(a => state.likes.has(a.id));
     } else if (state.mapSource === 'mine') {
-      pool = ACTIVITIES.filter(a => state.likes.has(a.id));
+      pool = inCity.filter(a => state.likes.has(a.id));
     } else {
-      pool = ACTIVITIES.slice();
+      pool = inCity.slice();
     }
     return pool;
   }
@@ -684,7 +738,7 @@
       state.map = L.map(mapEl, {
         zoomControl: true,
         attributionControl: true
-      }).setView([CLE_DOWNTOWN.lat, CLE_DOWNTOWN.lng], 11);
+      }).setView([currentCityCenter().lat, currentCityCenter().lng], currentCity().mapZoom || 11);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -715,7 +769,10 @@
 
     if (pool.length === 0) {
       emptyEl.classList.remove('hidden');
-      if (state.mapSource === 'group' && !window.FIREBASE_READY) {
+      const cityHasActivities = activitiesInCurrentCity().length > 0;
+      if (!cityHasActivities) {
+        emptyText.textContent = `No activities for ${currentCity().label} yet — add some in activities.js.`;
+      } else if (state.mapSource === 'group' && !window.FIREBASE_READY) {
         emptyText.textContent = 'Group voting isn\'t set up. Switch to "All" or like some activities.';
       } else if (state.mapOpenNowOnly) {
         emptyText.textContent = 'Nothing in this view is open right now. Toggle "Open now" off to see all.';
@@ -820,16 +877,18 @@
     const now = effectiveNow();
     const dp = currentDaypart(now);
 
-    // Source pool: prefer group likes, fall back to user's likes, then everything
+    // Source pool: prefer group likes, fall back to user's likes, then everything.
+    // Always restricted to the current city.
+    const inCity = activitiesInCurrentCity();
     let pool;
     if (window.FIREBASE_READY) {
       const counts = state.groupCounts || {};
-      pool = ACTIVITIES.filter(a => (counts[a.id] || 0) > 0);
+      pool = inCity.filter(a => (counts[a.id] || 0) > 0);
     }
-    if (!pool || pool.length === 0) pool = ACTIVITIES.filter(a => state.likes.has(a.id));
-    if (pool.length === 0) pool = ACTIVITIES.slice();
+    if (!pool || pool.length === 0) pool = inCity.filter(a => state.likes.has(a.id));
+    if (pool.length === 0) pool = inCity.slice();
 
-    const origin = state.userLocation || CLE_DOWNTOWN;
+    const origin = state.userLocation || currentCityCenter();
 
     const scored = pool.map(a => {
       const open = isOpenNow(a, now);
@@ -894,8 +953,95 @@
     renderMap();
   });
 
+  // ===========================================
+  // ============== City switcher ==============
+  // ===========================================
+
+  // Update the header title to reflect the current city.
+  function renderHeaderCity() {
+    const c = currentCity();
+    const titleEl = document.querySelector('#city-switch .city-label');
+    if (titleEl) titleEl.textContent = `${c.emoji || '📍'} ${c.label || 'Trip'}`;
+    // Also update document title for browser tab clarity
+    document.title = `${c.label || 'Trip'} — Swipe to Plan`;
+  }
+
+  function openCitySwitcher() {
+    const sheet = document.getElementById('city-sheet');
+    const list = document.getElementById('city-sheet-list');
+    list.innerHTML = '';
+    const cities = window.CITIES || {};
+    Object.keys(cities).forEach(key => {
+      const c = cities[key];
+      const count = ACTIVITIES.filter(a => (a.city || DEFAULT_CITY_KEY) === key).length;
+      const row = document.createElement('button');
+      row.className = 'city-row' + (key === state.city ? ' active' : '');
+      row.innerHTML = `
+        <span class="city-row-emoji">${c.emoji || '📍'}</span>
+        <span class="city-row-text">
+          <span class="city-row-name">${c.label}, ${c.state || ''}</span>
+          <span class="city-row-meta">${count} ${count === 1 ? 'activity' : 'activities'}${c.tripStart ? ' · trip set' : ''}</span>
+        </span>
+        ${key === state.city ? '<span class="city-row-check">✓</span>' : ''}
+      `;
+      row.addEventListener('click', () => {
+        switchCity(key);
+        sheet.classList.add('hidden');
+      });
+      list.appendChild(row);
+    });
+    sheet.classList.remove('hidden');
+  }
+
+  function switchCity(key) {
+    const cities = window.CITIES || {};
+    if (!cities[key] || key === state.city) return;
+    state.city = key;
+    state.reviewMode = false;
+    state.userLocation = null;
+    state.deck = [];
+    state.filter = 'all';            // reset category filter
+    state.mapOpenNowOnly = false;    // reset map open-now toggle
+    saveState();
+
+    // Re-sync filter-chip UI to "All"
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.cat === 'all');
+    });
+    // Re-sync the map "open now" pill
+    const openNowBtn = document.getElementById('map-open-now-toggle');
+    if (openNowBtn) openNowBtn.setAttribute('aria-pressed', 'false');
+
+    // Re-center the map for the new city if it's been initialized.
+    if (state.map) {
+      const center = currentCityCenter();
+      state.map.setView([center.lat, center.lng], currentCity().mapZoom || 11);
+      if (state.userMarker) { state.map.removeLayer(state.userMarker); state.userMarker = null; }
+    }
+
+    renderHeaderCity();
+    buildDeck();
+    renderStack();
+    // Refresh whichever side view is currently visible.
+    if (state.view === 'likes') renderLikes();
+    if (state.view === 'group') renderGroup();
+    if (state.view === 'map')   renderMap();
+  }
+
+  // Wire the header button + sheet close behaviors
+  document.getElementById('city-switch').addEventListener('click', openCitySwitcher);
+  document.getElementById('city-sheet-close').addEventListener('click', () => {
+    document.getElementById('city-sheet').classList.add('hidden');
+  });
+  document.getElementById('city-sheet').addEventListener('click', (e) => {
+    if (e.target.id === 'city-sheet') {
+      document.getElementById('city-sheet').classList.add('hidden');
+    }
+  });
+
   // ---------- Boot ----------
   loadState();
+  renderHeaderCity();
   initFirebase();
   buildDeck();
   renderStack();

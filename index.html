@@ -32,7 +32,12 @@
 
     <!-- Header -->
     <header id="header">
-      <div class="header-title">🏙️ Cleveland Trip</div>
+      <button id="city-switch" class="city-switch" aria-label="Switch city">
+        <span class="city-label">🏙️ Cleveland</span>
+        <svg class="city-chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
       <div id="header-counter" class="header-counter"></div>
     </header>
 
@@ -136,6 +141,16 @@
       </button>
     </nav>
 
+  </div>
+
+  <!-- City switcher (bottom sheet) -->
+  <div id="city-sheet" class="modal hidden">
+    <div class="modal-card city-sheet-card">
+      <button class="modal-close" id="city-sheet-close">✕</button>
+      <h3 class="city-sheet-title">Where to?</h3>
+      <p class="city-sheet-sub">Switch the trip — your likes and votes are scoped per city.</p>
+      <div id="city-sheet-list" class="city-list"></div>
+    </div>
   </div>
 
   <!-- Info modal -->

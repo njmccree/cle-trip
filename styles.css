@@ -45,11 +45,39 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-bottom: 1px solid rgba(255,255,255,0.06);
   z-index: 50;
 }
-.header-title {
-  font-size: 17px;
+/* Clickable city switcher in the header */
+.city-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: #f1f5f9;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.2px;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.15s, transform 0.1s;
+  max-width: 65%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.city-switch:hover { background: rgba(255,255,255,0.10); }
+.city-switch:active { transform: scale(0.97); background: rgba(255,255,255,0.14); }
+.city-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.city-chev {
+  flex: 0 0 auto;
+  opacity: 0.75;
+  transition: transform 0.15s;
+}
+.city-switch:active .city-chev { transform: translateY(1px); }
+
 .header-counter {
   font-size: 13px;
   color: #94a3b8;
@@ -429,6 +457,66 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* ============== City switcher sheet ============== */
+.city-sheet-card { padding: 22px 18px 18px; }
+.city-sheet-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.city-sheet-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+.city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.city-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #f1f5f9;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s, transform 0.1s;
+}
+.city-row:hover { background: rgba(255,255,255,0.09); }
+.city-row:active { transform: scale(0.99); }
+.city-row.active {
+  background: rgba(124, 58, 237, 0.16);
+  border-color: rgba(124, 58, 237, 0.45);
+}
+.city-row-emoji { font-size: 26px; }
+.city-row-text {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.city-row-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+.city-row-meta {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.city-row-check {
+  flex: 0 0 auto;
+  font-size: 16px;
+  color: #c4b5fd;
+  font-weight: 800;
+}
 
 .hidden { display: none !important; }
 
