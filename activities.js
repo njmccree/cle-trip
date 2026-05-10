@@ -1934,7 +1934,129 @@ const ACTIVITIES = [
     daypart: ['morning','afternoon','evening'],
     description: 'Pontoon, jet ski, and paddleboard rentals on Lake Lancer. Get a 24-ft pontoon for the whole group, anchor in a cove, swim, repeat.',
     info: 'Sugar Springs, Lake Lancer • Hourly + day rates • Book ahead in summer',
-    tags: ['lake', 'summer', 'group-friendly', 'memorable', 'must-do'] }
+    tags: ['lake', 'summer', 'group-friendly', 'memorable', 'must-do'] },
+
+  // ============================================
+  // ====== GOLF — TVC / Mackinaw / Gladwin =====
+  // ============================================
+
+  // ---- Traverse City golf ----
+  { id: 'tvc-grand-traverse-bear', title: 'The Bear at Grand Traverse Resort', category: 'golf', city: 'traverse-city', emoji: '🐻',
+    lat: 44.8714, lng: -85.5050,
+    phone: '+12315347000', website: 'https://www.grandtraverseresort.com/golf/courses/bear',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Jack Nicklaus signature course unleashed in 1985 — once ranked the 18th-toughest in America. Mounding, deep bunkers, no mercy on the 13th. Bucket-list round for any serious golfer.',
+    info: 'Grand Traverse Resort, Acme • $95-150 greens fee • Reservations a must',
+    tags: ['serious-golf', 'splurge', 'special-occasion', 'must-do'] },
+
+  { id: 'tvc-grand-traverse-wolverine', title: 'The Wolverine at Grand Traverse Resort', category: 'golf', city: 'traverse-city', emoji: '🐾',
+    lat: 44.8709, lng: -85.5008,
+    phone: '+12315347000', website: 'https://www.grandtraverseresort.com/golf/courses/wolverine',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Gary Player\'s signature course at Grand Traverse — wetlands on the front nine, hardwoods and bay views on the back. More playable than The Bear, still gorgeous.',
+    info: 'Grand Traverse Resort, Acme • $80-130 greens fee',
+    tags: ['serious-golf', 'group-friendly'] },
+
+  { id: 'tvc-grand-traverse-spruce-run', title: 'Spruce Run at Grand Traverse Resort', category: 'golf', city: 'traverse-city', emoji: '🌲',
+    lat: 44.8698, lng: -85.4995,
+    phone: '+12315347000', website: 'https://www.grandtraverseresort.com/golf/courses/spruce-run',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'The resort\'s original course — friendlier, walkable, much cheaper. Perfect "warm-up day" or for the casual hackers in the group.',
+    info: 'Grand Traverse Resort, Acme • $60-85 greens fee',
+    tags: ['casual-golf', 'group-friendly', 'public'] },
+
+  { id: 'tvc-arcadia-bluffs', title: 'Arcadia Bluffs (Bluffs Course)', category: 'golf', city: 'traverse-city', emoji: '🏆',
+    lat: 44.4756, lng: -86.2245,
+    phone: '+12318898600', website: 'https://arcadiabluffs.com',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Ranked #14 in America\'s 100 Greatest Public Courses by Golf Digest. Seaside-style links on the bluffs of Lake Michigan — fescue, dunes, infinite-view tee boxes. Worth the 1-hour drive.',
+    info: '14710 Northwood Hwy, Arcadia • ~1 hr SW of TC • $200+ peak season',
+    tags: ['serious-golf', 'splurge', 'special-occasion', 'must-do', 'memorable'] },
+
+  { id: 'tvc-forest-dunes', title: 'Forest Dunes Golf Club', category: 'golf', city: 'traverse-city', emoji: '🌲',
+    lat: 44.6750, lng: -84.4636,
+    phone: '+19898893007', website: 'https://www.forestdunesgolf.com',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Top-40 public in America. Original Forest Dunes course plus the Tom Doak-designed "Loop" — a reversible 18 that plays differently each day. Cult favorite for serious golfers.',
+    info: 'Roscommon, MI • ~1.5 hr SE of TC • $150-200 • Stay-and-play packages',
+    tags: ['serious-golf', 'splurge', 'memorable'] },
+
+  // ---- Mackinaw City / Mackinac Island golf ----
+  { id: 'mcy-wawashkamo', title: 'Wawashkamo Golf Club (Mackinac Island)', category: 'golf', city: 'mackinaw-city', emoji: '🏌️',
+    lat: 45.8635, lng: -84.6342,
+    phone: '+19068473871', website: 'http://www.wawashkamogolfclub.com',
+    hours: { open: 8, close: 19 },
+    daypart: ['morning','afternoon'],
+    description: 'Michigan\'s oldest continuously-played golf course, est. 1898. 9 holes, hickory shafts available, sheep have grazed the fairways. Named an "America\'s Historic Golf Landmark" by Golf Digest. Truly unique.',
+    info: 'British Landing Rd, Mackinac Island • Non-member play welcomed • Walk or bike from town',
+    tags: ['serious-golf', 'iconic', 'memorable', 'must-do', 'history'] },
+
+  { id: 'mcy-jewel-grand-hotel', title: 'The Jewel at Grand Hotel (Mackinac Island)', category: 'golf', city: 'mackinaw-city', emoji: '💍',
+    lat: 45.8478, lng: -84.6172,
+    phone: '+19068473331', website: 'https://www.grandhotel.com/activities/golf',
+    hours: { open: 7, close: 19 },
+    daypart: ['morning','afternoon'],
+    description: '18 holes split in two — the Grand 9 in front of the hotel (built 1901), the Woods 9 in the island interior. Public-friendly, horse-and-carriage shuttle between nines. Only golf you\'ll play with no cars in earshot.',
+    info: 'Mackinac Island • Open to public • Carriage shuttle between nines',
+    tags: ['serious-golf', 'iconic', 'photogenic', 'memorable', 'splurge'] },
+
+  { id: 'mcy-cheboygan-cc', title: 'Cheboygan Golf & Country Club', category: 'golf', city: 'mackinaw-city', emoji: '⛳',
+    lat: 45.6420, lng: -84.4730,
+    phone: '+12316274434', website: 'https://www.cheboygangolfclub.com',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Closest mainland public course to Mackinaw City — 18 holes, walkable, riverside back nine. Easy "before the ferry" round if you got up early.',
+    info: 'Cheboygan, MI • ~20 min east of Mackinaw City • Public',
+    tags: ['public', 'group-friendly', 'casual-golf'] },
+
+  { id: 'mcy-boyne-highlands', title: 'Boyne Highlands (The Heather)', category: 'golf', city: 'mackinaw-city', emoji: '🌄',
+    lat: 45.4570, lng: -84.9020,
+    phone: '+12315264955', website: 'https://www.boyne.com/boynehighlands',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Robert Trent Jones Sr. design at Boyne Highlands resort. One of four 18s on property; The Heather is the marquee. Stay-and-play packages worth considering for a golf-heavy group day.',
+    info: 'Harbor Springs • ~45 min S of Mackinaw • $130-180 • Stay-and-play available',
+    tags: ['serious-golf', 'splurge', 'group-friendly'] },
+
+  // ---- Gladwin area golf ----
+  { id: 'gld-gladwin-heights', title: 'Gladwin Heights Golf Course', category: 'golf', city: 'gladwin', emoji: '⛳',
+    lat: 43.9870, lng: -84.4760,
+    phone: '+19894267160', website: 'http://www.gladwinheightsgolf.com',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Family-owned 18-hole public course just outside town — walkable, fair greens fees, friendly. The "everyone can play" home course for the area.',
+    info: 'Hwy M-30, Gladwin • Public • Cart + walk-up',
+    tags: ['public', 'casual-golf', 'group-friendly', 'cheap'] },
+
+  { id: 'gld-lakeside-gc', title: 'Lakeside Golf Course (9-hole)', category: 'golf', city: 'gladwin', emoji: '🏌️‍♀️',
+    lat: 43.9550, lng: -84.4520,
+    daypart: ['morning','afternoon','evening'],
+    description: 'Short 9-hole public course near Sugar Springs — perfect for a quick group round or evening loop with beers. Opened 2000, par 35.',
+    info: 'Sugar Springs area • Public • 9 holes',
+    tags: ['public', 'casual-golf', 'cheap', 'group-friendly'] },
+
+  { id: 'gld-bucks-run', title: 'Bucks Run Golf Club', category: 'golf', city: 'gladwin', emoji: '🏆',
+    lat: 43.6045, lng: -84.7610,
+    phone: '+19897732700', website: 'https://www.bucksrun.com',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Generally considered the best public course in central Michigan — Tripp Davis design with sprawling rolling terrain and risk/reward par 5s. Worth the drive south.',
+    info: 'Mt. Pleasant, MI • ~45 min S of Gladwin • $60-90 • Walkable',
+    tags: ['serious-golf', 'public', 'group-friendly', 'memorable'] },
+
+  { id: 'gld-pohlcat', title: 'Pohlcat Golf Course', category: 'golf', city: 'gladwin', emoji: '🌳',
+    lat: 43.5780, lng: -84.7320,
+    phone: '+19897735900', website: 'https://www.pohlcat.net',
+    hours: { open: 7, close: 20 },
+    daypart: ['morning','afternoon'],
+    description: 'Designed by PGA pro Dan Pohl in his hometown of Mt. Pleasant. Tree-lined, water on 7 holes, fair test. Combine with Bucks Run for a 36-hole day if your group is serious.',
+    info: 'Mt. Pleasant, MI • ~45 min S of Gladwin • $50-75',
+    tags: ['serious-golf', 'public', 'group-friendly'] }
 ];
 
 // Sanity log when this file loads
